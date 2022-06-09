@@ -2,7 +2,7 @@ import xarray as xr
 import pandas as pd
 
 #open the netcdf and turn it into dataframe
-ds = xr.open_dataset('CNN_100k_11y.nc')
+ds = xr.open_dataset('PRC_100k_11y.nc')
 df = ds.to_dataframe()
 
 #delete rows of elements that are already deactivated
@@ -22,4 +22,4 @@ df = df.drop(index=vector2)
 df = df.loc[df["status"] == 1]
 
 #export to .csv
-df.to_csv('CNN_100k_11y.csv', columns=['lon', 'lat'])
+df.to_csv('PRC_100k_11y.csv', columns=['lon', 'lat'])
