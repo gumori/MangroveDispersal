@@ -1,0 +1,11 @@
+After SNP calling with bcftools:
+
+Rm_cp.vcf		2341 SNPs
+Rm_cp_Br.recode.vcf	1872 SNPs
+
+max-missing 0.95	41 SNPs
+max-missing 0.9		42 SNPs
+max-missing 0.8		47 SNPs
+max-missing 0.7		55 SNPs
+max-missing 0.6		64 SNPs
+max-missing 0.5		81 SNPs

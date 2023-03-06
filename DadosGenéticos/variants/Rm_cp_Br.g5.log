@@ -1,0 +1,16 @@
+
+VCFtools - 0.1.15
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf Rm_cp_Br.recode.vcf
+	--recode-INFO-all
+	--minQ 30
+	--max-missing 0.5
+	--out Rm_cp_Br.g5
+	--recode
+
+After filtering, kept 82 out of 82 Individuals
+Outputting VCF file...
+After filtering, kept 81 out of a possible 1872 Sites
+Run Time = 0.00 seconds
