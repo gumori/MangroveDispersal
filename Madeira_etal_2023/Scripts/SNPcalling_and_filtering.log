@@ -1,0 +1,123 @@
+###RADseq SNP calling###
+
+$ process_radtags -p ./raw/AG/ -o ./samples/ -b ./barcodes/barcodes_plateA_AG.txt -e ecoRI -E phred33 -r -c -q 2>&1 | tee log_plateA_de-multiplex.txt
+$ process_radtags -p ./raw/AH/ -o ./samples/ -b ./barcodes/barcodes_plateB_AH.txt -e ecoRI -E phred33 -r -c -q 2>&1 | tee log_plateB_de-multiplex.txt
+$ process_radtags -p ./raw/AI/ -o ./samples/ -b ./barcodes/barcodes_plateC_AI.txt -e ecoRI -E phred33 -r -c -q 2>&1 | tee log_plateC_de-multiplex.txt
+
+$ sh 1_trim_cutadapt_with_trueSeq/cutadapt_trim1.sh 2>&1 | tee log_cutadapt_trim1.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls samples/*.fq.gz)
+	do
+	indexNo=`basename ${filename} .fq.gz`
+	cutadapt -e 0.1 -b ACTCAGGCATCACTCGATTCCTCCGTCGTATGCCGTCTTCTGCTTG -o trim1/${indexNo}_trim1re.fq.gz samples/${indexNo}.fq.gz
+	done
+
+$ sh 1_trim_cutadapt_with_trueSeq/cutadapt_trim2.sh 2>&1 | tee log_cutadapt_trim2.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls trim1/*.fq.gz)
+	do
+	indexNo=`basename ${filename} .fq.gz`
+	cutadapt -e 0.1 -b AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT -o trim2/${indexNo}2.fq.gz trim1/${indexNo}.fq.gz
+	done
+
+$ sh 2_trim_quality_and_length/trim_qc_MINLEN46.sh 2>&1 | tee log_qc_trim_after_cutadapt.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls trim2/*.fq.gz)
+	do
+	indexNo=`basename ${filename} .fq.gz`
+	java -jar /programas/genetica/Trimmomatic-0.38/trimmomatic-0.38.jar SE -phred33 -threads 4 trim2/${indexNo}.fq.gz qc_trim/${indexNo}_qc.fq.gz LEADING:19 TRAILING:19 SLIDINGWINDOW:20:20 AVGQUAL:20 MINLEN:46
+	done
+
+$ bowtie2-build ref/FWPW01.1.fsa_nt ref/FWPW01.1 2>&1 | tee log_make_index_genome
+
+$ sh sams/sams15/bowtie2_mapping_seedlength15.sh 2>&1 | tee log_bowtie2_mapping_seedlength15.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls qc_trim/*.fq.gz)
+	do
+	indexNo=`basename ${filename} .fq.gz`
+	echo ${indexNo}
+	bowtie2 -q -L 15 -p 4 -x ref/FWPW01.1 -U qc_trim/${indexNo}.fq.gz -S sams/sams15/${indexNo}_L15.sam
+	done
+
+$ sh bam/L15/samtools_converting_L15.sh  2>&1 | tee log_samtools_converting_L15.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls sams/sams15/*.sam)
+	do
+	indexNo=`basename ${filename} .sam`
+	echo ${indexNo}
+	samtools view -b -S -o bam/L15/${indexNo}.bam sams/sams15/${indexNo}.sam
+	done
+
+$ sh bam/L15/SortingBam_L15.sh 2>&1 | tee log_samtools_sortingL15.txt
+
+	#!/usr/bin/sh
+	for filename in $(ls bam/L15/*.bam)
+	do
+	indexNo=`basename ${filename} .bam`
+	echo ${indexNo}
+	samtools sort -o bam/L15sorted/${indexNo}.sorted bam/L15/${indexNo}.bam
+	done
+
+$ sh bam/L15sorted/IndexL15.sh
+
+	#!/usr/bin/sh
+	for filename in $(ls bam/L15sorted/*.sorted)
+	do
+	indexNo=`basename ${filename} .sorted`
+	echo ${indexNo}
+	samtools index bam/L15sorted/${indexNo}.sorted
+	done
+
+$ ls -X > listL15.txt	#we manualy excluded the scripts and .bai files from this list
+	
+$ bcftools mpileup --redo-BAQ --min-BQ 30 --per-sample-mF -f ref/FWPW01.1.fsa_nt -b listL15.txt | bcftools call --multiallelic-caller --variants-only -Ob > variants/L15.bcf
+
+	#our initial dataset had individuals from America from both Atlantic and Pacific coasts, as well as South Pacific Islands. Here, we keep only the Brazilian samples.
+$ vcftools --vcf L15.vcf --remove NoBrIndividualL15 --recode --recode-INFO-all --out L15.Br
+
+###filtering###
+
+$ bcftools view variants/L15.BR.bcf > variants/L15.Br.vcf
+
+$ bgzip variants/L15.BR.vcf
+$ tabix -p vcf variants/L15.Br.vcf.gz
+
+$ vcftools --gzvcf L15.Br.vcf.gz --max-missing 0.8 --mac 3 --minQ 30 --recode --recode-INFO-all --out L15.g8mac3Br
+$ vcftools --vcf variants/L15.g8mac3Br.recode.vcf --missing-indv
+
+	#we made a file (lowDP.indiv) listing the individuals with more than 20% missing data
+
+$ vcftools --vcf L15.g8mac3Br.recode.vcf --remove lowDP.indv --recode --recode-INFO-all --out L15.g8mac3i8Br
+
+###outliers###
+
+	#pcadapt (in R)
+
+> library(pcadapt)
+> source("https://bioconductor.org/biocLite.R")
+> if (!requireNamespace("BiocManager", quietly=TRUE))
+> install.packages("BiocManager")
+> BiocManager::install("qvalue")
+> library(qvalue)
+> vcf <- read.pcadapt("L15.g8mac3i8Br.recode.vcf", type="vcf")
+> x <- pcadapt(input=vcf, K=20)
+> plot(x, option="screeplot")
+> x <- pcadapt(vcf, K=5)
+> qval <- qvalue(x$pvalues)$qvalues
+> alpha <- 0.1
+> outliers <- which(qval < alpha)
+> snp_pc <- get.pc(x, outliers)
+> loci <- read.table("listaloci")	#list with number of contig and position of each loci
+> outliers2 <- as.character(loci[,1]) [outliers]
+> write.table(outliers2, "outliers.txt", sep="\t")
+
+$ bcftools view -T ^outliers.txt L15.g8mac3i8Br.recode.vcf > L15.g8mac3i8Brpcadapt.recode.vcf
+
+	#BayeScan
+
+$ ./BayeScan2.1_linux64bits L15bayescan.txt -snp

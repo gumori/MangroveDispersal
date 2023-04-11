@@ -1,0 +1,46 @@
+###DAPC###
+
+> vcfBR <- read.vcfR("L15.g8mac3i8Br.recode.vcf", verbose=FALSE)
+> GlBR <- vcfR2genlight(vcfBR)
+> pcaBR <- glPca(GlBR)
+> clusterBR <- find.clusters(GlBR, max.n.clust=10)
+	Choose the number of PCs to retain (>=1):
+		80
+	Choose the number of clusters (>=2):
+		2
+> temp <- a.score(dapcBR)
+> temp <- optim.a.score(dapcBR)
+> dapcBR <- dapc(GlBR, clusterBR$grp)
+	Choose the number PCs to retain (>=1):
+		2
+	Choose the number discriminant functions to retain (>=1):
+		1
+> scatter(dapcBR)
+> round(dapcBR$posterior, 3)
+> compoplot(dapcBR, col=c("red, "blue"), lab="", txt.leg=paste("group", 1:2), ncol=2)
+
+###ADMIXTURE###
+
+$ plink --vcf L15.g8mac3i8Br.recode.vcf --recode12 --const-fid --out L15.g8mac3i8Br --allow-extra-chr 0
+$ admixture L15.g8mac3i8Br.ped 2
+
+> tbl=read.table("L15.g8mac3i8Br.2.Q")
+> barplot(t(as.matrix(tbl)), col=rainbow(2),xlab="Individual #", ylab="Ancestry", border=NA)
+
+$ sh admixture.sh 
+
+	#!/usr/bin/sh
+	for K in 1 2 3 4 5 6 7 8 9 10;  do admixture --cv L15.g8mac3i8Br.ped $K | tee log${K}.out; done
+
+$ grep -h CV log*.out
+
+	CV error (K=10): 0.99158
+	CV error (K=1): 0.57355
+	CV error (K=2): 0.58992
+	CV error (K=3): 0.61132
+	CV error (K=4): 0.66891
+	CV error (K=5): 0.72976
+	CV error (K=6): 0.76463
+	CV error (K=7): 0.81586
+	CV error (K=8): 0.93142
+	CV error (K=9): 0.95929

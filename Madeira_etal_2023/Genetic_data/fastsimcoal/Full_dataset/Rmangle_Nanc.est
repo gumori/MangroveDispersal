@@ -1,0 +1,66 @@
+// Priors and rules file
+// *********************
+
+[PARAMETERS]
+//#isInt? #name   #dist.#min  #max
+//all Ns are in number of haploid individuals
+0  M0I         logunif  0.00001  0.1     output
+0  M02         logunif  0.00001  0.1     output
+0  M03         logunif  0.00001  0.1     output
+0  M04         logunif  0.00001  0.1     output
+0  MI0         logunif  0.00001  0.1     output
+0  MI2         logunif  0.00001  0.1     output
+0  MI3         logunif  0.00001  0.1     output
+0  MI4         logunif  0.00001  0.1     output
+0  M20         logunif  0.00001  0.1     output
+0  M2I         logunif  0.00001  0.1     output
+0  M23         logunif  0.00001  0.1     output
+0  M24         logunif  0.00001  0.1     output
+0  M30         logunif  0.00001  0.1     output
+0  M3I         logunif  0.00001  0.1     output
+0  M32         logunif  0.00001  0.1     output
+0  M34         logunif  0.00001  0.1     output
+0  M40         logunif  0.00001  0.1     output
+0  M4I         logunif  0.00001  0.1     output
+0  M42         logunif  0.00001  0.1     output
+0  M43         logunif  0.00001  0.1     output
+0  M56         logunif  0.00001  0.1     output
+0  M57         logunif  0.00001  0.1     output
+0  M58         logunif  0.00001  0.1     output
+0  M59         logunif  0.00001  0.1     output
+0  M510        logunif  0.00001  0.1     output
+0  M65         logunif  0.00001  0.1     output
+0  M67         logunif  0.00001  0.1     output
+0  M68         logunif  0.00001  0.1     output
+0  M69         logunif  0.00001  0.1     output
+0  M610        logunif  0.00001  0.1     output
+0  M75         logunif  0.00001  0.1     output
+0  M76         logunif  0.00001  0.1     output
+0  M78         logunif  0.00001  0.1     output
+0  M79         logunif  0.00001  0.1     output
+0  M710        logunif  0.00001  0.1     output
+0  M85         logunif  0.00001  0.1     output
+0  M86         logunif  0.00001  0.1     output
+0  M87         logunif  0.00001  0.1     output
+0  M89         logunif  0.00001  0.1     output
+0  M810        logunif  0.00001  0.1     output
+0  M95         logunif  0.00001  0.1     output
+0  M96         logunif  0.00001  0.1     output
+0  M97         logunif  0.00001  0.1     output
+0  M98         logunif  0.00001  0.1     output
+0  M910        logunif  0.00001  0.1     output
+0  M105        logunif  0.00001  0.1     output
+0  M106        logunif  0.00001  0.1     output
+0  M107        logunif  0.00001  0.1     output
+0  M108        logunif  0.00001  0.1     output
+0  M109        logunif  0.00001  0.1     output
+1  T1          unif     10       20000   output
+1  T2          unif     10       20000   output
+1  T3          unif     10       20000   output
+
+[RULES]
+
+T3 > T2
+T2 > T1
+
+[COMPLEX PARAMETERS]

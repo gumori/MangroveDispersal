@@ -1,0 +1,19 @@
+// Priors and rules file
+// *********************
+
+[PARAMETERS]
+//#isInt? #name   #dist.#min  #max
+//all Ns are in number of haploid individuals
+0  M0I         logunif  0.00001  0.1     output
+0  MI0         logunif  0.00001  0.1     output
+0  MI2         logunif  0.00001  0.1     output
+0  M2I         logunif  0.00001  0.1     output
+0  M23         logunif  0.00001  0.1     output
+0  M32         logunif  0.00001  0.1     output
+0  M34         logunif  0.00001  0.1     output
+0  M43         logunif  0.00001  0.1     output
+1  T1          unif	    10       20000   output
+
+[RULES]
+
+[COMPLEX PARAMETERS]
