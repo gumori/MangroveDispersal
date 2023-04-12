@@ -1,4 +1,4 @@
-<title>fastsimcoal projects</title>
+<h1>fastsimcoal projects</h1>
 
 DAF = joint derived allele frequency (DAF) spectrum of our populations, obtained with arlequin.
 
