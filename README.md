@@ -5,7 +5,7 @@ This respository cotains the data and scripts used to bridge oceanographic bioph
 
 The outcomes of this study are now reported in the paper 'The role of oceanic currents in the dispersal and connectivity of the mangrove <i>Rhizophora mangle</i> on the Southwest Atlantic region'. Adrift and Opendrift data are openly available in the <b> "Madeira_etal_2023" </b>folder. 
 
->>
+---
 Este repositório concentrará os dados, scripts, e rotinas para análise da dispersão de <i> Rhizophora mangle </i> ao longo da costa brasileira. 
 
 Os resultados do trabalho 'The role of oceanic currents in the dispersal and connectivity of the mangrove <i>Rhizophora mangle</i> on the Southwest Atlantic region' estão na pasta <b> 'Madeira_etal_2023' </b>
